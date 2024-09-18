@@ -1,0 +1,37 @@
+<html>
+    <head> 
+        <link rel ="stylesheet" href ="BeatCloud.css" 
+    head>
+    <script src="BeatCloud.js"> </script>
+
+    <body>
+        <h1>Upload Music</h1>
+        <form>
+            <img src="social.png">
+            <label for="type">Type</label> <br>
+            <input type="radio" name="type" id="single">
+            <label for="single">Single</label>
+            <input type="radio" name="type" id="ep">
+            <label for="ep"> EP</label>
+            <input type="radio" name="type" id="album">
+            <label for="album">Album</label> <br>
+            <label for="albumName">New Project: </label><br>
+            <input type="text" id="albumName" name="Album Name"><br>
+            <label for="description">Album Description</label> <br>
+            <textarea name="description" id="description"></textarea> <br>
+            <label for="artistName">Choose Artist</label>
+            <select name="artist" id="artist">
+                <option value="Eminem">Eminem</option>
+                <option value="JayZ">JayZ</option>
+                <option value="bananmand"> Bananmanden</option>
+                <option value="frederiksen">Mette Frederiksen</option>
+                <option value="mars"> Bruno Mars</option>
+            </select> <br>
+            <label for="albumYear">Release date</label> <br>
+            <input type="number" name="Year Released" id="albumYear"> <br>
+        
+            <label for="tracks">Tracks (max 10)</label> <br>
+            <input type="text" name="tracks" id="tracks" max="10"> <br>
+            <input type="submit" value="Upload" onclick="reciept">
+    </body>
+</html>
