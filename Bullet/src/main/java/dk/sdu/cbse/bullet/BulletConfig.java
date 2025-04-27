@@ -1,6 +1,5 @@
 package dk.sdu.cbse.bullet;
 
-
 public class BulletConfig{
     private double speed = 500;
     private float radius = 2f;
