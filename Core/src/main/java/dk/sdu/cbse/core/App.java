@@ -1,6 +1,7 @@
 package dk.sdu.cbse.core;
 
 import dk.sdu.cbse.common.*;
+import dk.sdu.cbse.common.services.IGamePluginService;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Node;
@@ -20,7 +21,7 @@ public class App extends Application {
         private final GameData gameData = new GameData();
         private final World world = new World();
         private Label wallModeLabel = new Label();
-        private final List<GamePlugin> plugins = new ArrayList<>();
+        private final List<IGamePluginService> plugins = new ArrayList<>();
         private final Map<String, Node> entityViews = new HashMap<>();
         private Pane root;
         private Scene scene;
@@ -86,7 +87,7 @@ public class App extends Application {
         }
 
         private void loadPlugins() {
-                ServiceLoader.load(GamePlugin.class).forEach(p -> {
+                ServiceLoader.load(IGamePluginService.class).forEach(p -> {
                         plugins.add(p);
                         p.start(gameData, world);
                 });

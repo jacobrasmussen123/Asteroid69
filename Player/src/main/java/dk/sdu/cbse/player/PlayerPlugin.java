@@ -1,12 +1,12 @@
 package dk.sdu.cbse.player;
 
 import dk.sdu.cbse.common.*;
-import dk.sdu.cbse.player.*;
+import dk.sdu.cbse.common.services.IGamePluginService;
 import dk.sdu.cbse.bullet.*;
 import dk.sdu.cbse.player.systems.InputSystem;
 import dk.sdu.cbse.player.systems.MovementSystem;
 
-public class PlayerPlugin implements GamePlugin {
+public class PlayerPlugin implements IGamePluginService {
     private String playerId;
     private final InputSystem inputSystem = new InputSystem();
     private final MovementSystem movementSystem = new MovementSystem();
@@ -18,6 +18,11 @@ public class PlayerPlugin implements GamePlugin {
         p.setX(data.getDisplayWidth() / 2.0);
         p.setY(data.getDisplayHeight() / 2.0);
         playerId = world.addEntity(p);
+    }
+
+    @Override
+    public void stop(GameData gameData, World world) {
+
     }
 
     @Override

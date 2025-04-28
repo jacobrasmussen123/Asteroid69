@@ -1,13 +1,14 @@
 package dk.sdu.cbse.enemy;
 
 import dk.sdu.cbse.common.*;
+import dk.sdu.cbse.common.services.IGamePluginService;
 import dk.sdu.cbse.enemy.systems.AIController;
 
 import java.util.Random;
 import dk.sdu.cbse.bullet.*;
 import dk.sdu.cbse.enemy.systems.MovementSystem;
 
-public class EnemyPlugin implements GamePlugin {
+public class EnemyPlugin implements IGamePluginService {
     // Add these new fields
     private final AIController aiController = new AIController();
     private final Random random = new Random();
@@ -21,6 +22,11 @@ public class EnemyPlugin implements GamePlugin {
         e.setX(data.getDisplayWidth() / 2.0);
         e.setY(data.getDisplayHeight() / 2.0);
         enemyId = world.addEntity(e);
+    }
+
+
+    public void stop(GameData gameData, World world) {
+
     }
 
     @Override
