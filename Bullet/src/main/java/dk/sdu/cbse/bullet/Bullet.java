@@ -6,6 +6,10 @@ public class Bullet extends Entity {
     private double dx, dy;
     private float timeAlive = 1;
     private final float maxLifetime = 3.0f; // in seconds
+    private String owner;
+
+    public String getOwner() { return owner; }
+    public void setOwner(String owner) { this.owner = owner; }
 
     public Bullet(double x, double y, double rotDeg, BulletConfig config) {
         setPolygonCoordinates(-2, -2, 2, -2, 2, 2, -2, 2);

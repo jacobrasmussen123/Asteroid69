@@ -7,8 +7,18 @@ public class Player extends Entity {
     public static final double ACCEL     = 200;  // px/sec²
     public static final double MAX_SPEED = 300;  // px/sec
     public static final double ROT_SPEED = 180;  // deg/sec
+    static final int PLAYER_MAX_HEALTH = 100;
 
     private double dx = 0, dy = 0;
+    private int health = PLAYER_MAX_HEALTH;
+
+    public void takeDamage(int damage) {
+        health = Math.max(0, health - damage);
+    }
+
+    public int getHealth() {
+        return health;
+    }
 
     public Player() {
         ShipDesign design = ShipDesign.random();

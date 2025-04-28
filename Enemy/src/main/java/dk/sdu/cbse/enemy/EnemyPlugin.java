@@ -51,6 +51,8 @@ public class EnemyPlugin implements IGamePluginService {
 
         bulletSystem.updateBullets(world, dt,
                 data.getDisplayWidth(), data.getDisplayHeight());
+
+
     }
 
     private Entity findPlayerEntity(World world) {
@@ -62,4 +64,6 @@ public class EnemyPlugin implements IGamePluginService {
         }
         return null;
     }
+
+
 }

@@ -17,8 +17,10 @@ public class BulletSystem {
 
     public void spawnBullet(Entity shooter, BulletConfig config, World world) {
         Bullet b = new Bullet(shooter.getX(), shooter.getY(), shooter.getRotation(), config);
+        b.setOwner(shooter.getClass().getSimpleName()); // Set owner here
         world.addEntity(b);
     }
+
 
     public void updateBullets(World world, float dt, int w, int h) {
         List<Entity> toRemove = new ArrayList<>();

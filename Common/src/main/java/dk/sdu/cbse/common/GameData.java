@@ -1,6 +1,8 @@
 package dk.sdu.cbse.common;
 
 
+import javafx.scene.Scene;
+
 public class GameData {
 
     private int displayWidth  = 800 ;
@@ -8,7 +10,14 @@ public class GameData {
     private final GameKeys keys = new GameKeys();
 
     private float deltaTime;
+    private Scene scene;
+    public Scene getScene() {
+        return scene;
+    }
 
+    public void setScene(Scene scene) {
+        this.scene = scene;
+    }
 
     public GameKeys getKeys() {
         return keys;
