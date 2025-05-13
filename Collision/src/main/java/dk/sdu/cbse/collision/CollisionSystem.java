@@ -1,145 +1,129 @@
 package dk.sdu.cbse.collision;
 
-import dk.sdu.cbse.common.Entity;
 import dk.sdu.cbse.common.GameData;
 import dk.sdu.cbse.common.World;
+import dk.sdu.cbse.common.Entity;
 import dk.sdu.cbse.common.services.IPostEntityProcessingService;
 import dk.sdu.cbse.asteroid.Asteroid;
 import dk.sdu.cbse.bullet.Bullet;
-import dk.sdu.cbse.enemy.Enemy;
 import dk.sdu.cbse.player.Player;
+import dk.sdu.cbse.enemy.Enemy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class CollisionSystem implements IPostEntityProcessingService {
 
-    private static final int PLAYER_MAX_HEALTH = 3;
-    private static final int ENEMY_MAX_HEALTH = 2;
-    private static final int BULLET_DAMAGE = 1;
+    private final Random rng = new Random();
 
     @Override
     public void process(GameData gameData, World world) {
-        checkShipAsteroidCollisions(world);
-        checkBulletAsteroidCollisions(world);
-        checkBulletShipCollisions(world);
-    }
+        // Make a stable snapshot so removals during collision handling don't interfere
+        List<Entity> entities = new ArrayList<>(world.getEntities());
+        for (int i = 0; i < entities.size(); i++) {
+            Entity e1 = entities.get(i);
+            for (int j = i + 1; j < entities.size(); j++) {
+                Entity e2 = entities.get(j);
 
-    private void checkShipAsteroidCollisions(World world) {
-        List<Entity> ships = new ArrayList<>();
-        ships.addAll(world.getEntities(Player.class));
-        ships.addAll(world.getEntities(Enemy.class));
-
-        List<Entity> asteroids = world.getEntities(Asteroid.class);
-
-        for (Entity ship : ships) {
-            for (Entity asteroid : asteroids) {
-                if (collides(ship, asteroid)) {
-                    handleShipAsteroidCollision(ship, asteroid, world);
+                if (collides(e1, e2)) {
+                    handleCollision(e1, e2, world);
                 }
             }
         }
     }
 
-    private void checkBulletAsteroidCollisions(World world) {
-        for (Entity bullet : world.getEntities(Bullet.class)) {
-            for (Entity asteroid : world.getEntities(Asteroid.class)) {
-                if (collides(bullet, asteroid)) {
-                    handleBulletAsteroidCollision(bullet, asteroid, world);
-                }
+    private boolean collides(Entity e1, Entity e2) {
+        double dx = e1.getX() - e2.getX();
+        double dy = e1.getY() - e2.getY();
+        double distance = Math.hypot(dx, dy);
+        return distance < (e1.getRadius() + e2.getRadius());
+    }
+
+    private void handleCollision(Entity e1, Entity e2, World world) {
+        // --- Player or Enemy vs Asteroid ---
+        if (e1 instanceof Asteroid && (e2 instanceof Player || e2 instanceof Enemy)) {
+            world.removeEntity(e2);
+            return;
+        }
+        if (e2 instanceof Asteroid && (e1 instanceof Player || e1 instanceof Enemy)) {
+            world.removeEntity(e1);
+            return;
+        }
+
+        // --- Bullet vs Asteroid ---
+        if (e1 instanceof Bullet && e2 instanceof Asteroid) {
+            world.removeEntity(e1);
+            splitAsteroid((Asteroid) e2, world);
+            return;
+        }
+        if (e2 instanceof Bullet && e1 instanceof Asteroid) {
+            world.removeEntity(e2);
+            splitAsteroid((Asteroid) e1, world);
+            return;
+        }
+
+        // --- Bullet vs Ship (no friendly fire) ---
+        if (e1 instanceof Bullet && isShip(e2)) {
+            Bullet b = (Bullet) e1;
+            if (b.getOwner() != null && !b.getOwner().equals(e2.getClass().getSimpleName())) {
+                world.removeEntity(b);
+                damageShip(e2, world);
             }
+            return;
+        }
+        if (e2 instanceof Bullet && isShip(e1)) {
+            Bullet b = (Bullet) e2;
+            if (b.getOwner() != null && !b.getOwner().equals(e1.getClass().getSimpleName())) {
+                world.removeEntity(b);
+                damageShip(e1, world);
+            }
+            return;
+        }
+
+        // --- Player vs Enemy crash ---
+        if ((e1 instanceof Player && e2 instanceof Enemy) ||
+                (e1 instanceof Enemy  && e2 instanceof Player)) {
+            world.removeEntity(e1);
+            world.removeEntity(e2);
         }
     }
 
-    private void checkBulletShipCollisions(World world) {
-        List<Entity> bullets = world.getEntities(Bullet.class);
-        List<Entity> ships = new ArrayList<>();
-        ships.addAll(world.getEntities(Player.class));
-        ships.addAll(world.getEntities(Enemy.class));
+    private boolean isShip(Entity e) {
+        return e instanceof Player || e instanceof Enemy;
+    }
 
-        for (Entity bullet : bullets) {
-            for (Entity ship : ships) {
-                if (!isFriendlyFire(bullet, ship) && collides(bullet, ship)) {
-                    handleBulletShipCollision(bullet, ship, world);
-                }
-            }
+    private void splitAsteroid(Asteroid ast, World world) {
+        int children = ast.getSize().children;
+        if (children <= 0) {
+            world.removeEntity(ast);
+            return;
         }
-    } // Removed extra brace here
 
-    private boolean collides(Entity a, Entity b) {
-        double dx = a.getX() - b.getX();
-        double dy = a.getY() - b.getY();
-        double distance = Math.sqrt(dx * dx + dy * dy);
-        return distance < (a.getRadius() + b.getRadius());
+        Asteroid.Size nextSize = (ast.getSize() == Asteroid.Size.LARGE)
+                ? Asteroid.Size.MEDIUM
+                : Asteroid.Size.SMALL;
+        double x = ast.getX(), y = ast.getY();
+
+        for (int i = 0; i < children; i++) {
+            double dir = rng.nextDouble() * 360;
+            world.addEntity(new Asteroid(nextSize, x, y, dir));
+        }
+        world.removeEntity(ast);
     }
 
-    private boolean isFriendlyFire(Entity bullet, Entity ship) {
-        String owner = ((Bullet) bullet).getOwner();
-        return ship.getClass().getSimpleName().equalsIgnoreCase(owner);
-    }
-
-    private void handleShipAsteroidCollision(Entity ship, Entity asteroid, World world) {
-        // Apply damage to the ship
+    private void damageShip(Entity ship, World world) {
         if (ship instanceof Player) {
-            Player player = (Player) ship;
-            player.takeDamage(1); // Damage value for asteroid collision
-            if (player.getHealth() <= 0) {
-                world.removeEntity(player);
+            Player p = (Player) ship;
+            p.takeDamage(1);
+            if (p.getHealth() <= 0) {
+                world.removeEntity(p);
             }
         } else if (ship instanceof Enemy) {
-            Enemy enemy = (Enemy) ship;
-            enemy.takeDamage(1);
-            if (enemy.getHealth() <= 0) {
-                world.removeEntity(enemy);
-            }
-        }
-        // Remove the asteroid on collision
-        world.removeEntity(asteroid);
-    }
-    private void handleBulletAsteroidCollision(Entity bullet, Entity asteroidEntity, World world) {
-        Asteroid asteroid = (Asteroid) asteroidEntity;
-        world.removeEntity(bullet);
-
-        if (asteroid.getSize().children > 0) {
-            splitAsteroid(asteroid, world);
-        }
-        world.removeEntity(asteroid);
-    }
-
-    private void splitAsteroid(Asteroid original, World world) {
-        Asteroid.Size newSize = switch (original.getSize()) {
-            case LARGE -> Asteroid.Size.MEDIUM;
-            case MEDIUM -> Asteroid.Size.SMALL;
-            default -> null;
-        };
-
-        if (newSize != null) {
-            for (int i = 0; i < 2; i++) {
-                Asteroid child = new Asteroid(
-                        newSize,
-                        original.getX(),
-                        original.getY(),
-                        original.getRotation() + (i == 0 ? 45 : -45)
-                );
-                world.addEntity(child);
-            }
-        }
-    }
-
-    private void handleBulletShipCollision(Entity bullet, Entity ship, World world) {
-        world.removeEntity(bullet);
-
-        if (ship instanceof Player) {
-            Player player = (Player) ship;
-            player.takeDamage(BULLET_DAMAGE); // Fixed typo: BULLET_DAMAGE
-            if (player.getHealth() <= 0) {
-                world.removeEntity(player);
-            }
-        } else if (ship instanceof Enemy) {
-            Enemy enemy = (Enemy) ship;
-            enemy.takeDamage(BULLET_DAMAGE);
-            if (enemy.getHealth() <= 0) {
-                world.removeEntity(enemy);
+            Enemy e = (Enemy) ship;
+            e.takeDamage(1);
+            if (e.getHealth() <= 0) {
+                world.removeEntity(e);
             }
         }
     }

@@ -1,6 +1,6 @@
 module Core{
 
-    uses dk.sdu.cbse.common.GamePlugin;
+
     uses dk.sdu.cbse.common.services.IGamePluginService;
     requires javafx.graphics;
     requires javafx.controls;

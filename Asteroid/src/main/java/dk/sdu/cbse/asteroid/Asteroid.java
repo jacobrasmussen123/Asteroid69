@@ -1,7 +1,6 @@
 package dk.sdu.cbse.asteroid;
 
 import dk.sdu.cbse.common.Entity;
-import java.util.Arrays;
 
 public class Asteroid extends Entity {
     public enum Size {
@@ -30,25 +29,42 @@ public class Asteroid extends Entity {
         setRadius(size.radius);
         setX(x);
         setY(y);
-
         double rad = Math.toRadians(direction);
-        dx = Math.cos(rad) * size.speed;
-        dy = Math.sin(rad) * size.speed;
+        this.dx = Math.cos(rad) * size.speed;
+        this.dy = Math.sin(rad) * size.speed;
     }
 
     private double[] generateShape() {
         int points = 12;
         double[] shape = new double[points * 2];
-        for(int i = 0; i < points; i++) {
+        for (int i = 0; i < points; i++) {
             double angle = Math.toRadians(i * 360.0 / points);
-            double radiusVariation = size.radius * (0.8 + Math.random() * 0.4);
-            shape[i*2] = Math.cos(angle) * radiusVariation;
-            shape[i*2+1] = Math.sin(angle) * radiusVariation;
+            double variation = size.radius * (0.8 + Math.random() * 0.4);
+            shape[i*2]   = Math.cos(angle) * variation;
+            shape[i*2+1] = Math.sin(angle) * variation;
         }
         return shape;
     }
 
-    public Size getSize() { return size; }
-    public double getDx() { return dx; }
-    public double getDy() { return dy; }
+    public void update(float dt, int width, int height) {
+        setX(getX() + dx * dt);
+        setY(getY() + dy * dt);
+        // screen wrapping
+        if (getX() < -size.radius) setX(width + size.radius);
+        else if (getX() > width + size.radius) setX(-size.radius);
+        if (getY() < -size.radius) setY(height + size.radius);
+        else if (getY() > height + size.radius) setY(-size.radius);
+    }
+
+    public Size getSize() {
+        return size;
+    }
+
+    public double getDx() {
+        return dx;
+    }
+
+    public double getDy() {
+        return dy;
+    }
 }
