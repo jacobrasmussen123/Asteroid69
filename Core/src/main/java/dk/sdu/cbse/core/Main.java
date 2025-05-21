@@ -38,7 +38,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) {
         gamePane = new Pane();
-        gamePane.setStyle("-fx-background-color: blue;");
+        gamePane.setStyle("-fx-background-color: darkblue;");
         scene = new Scene(gamePane, 1600, 900);
 
         setupKeyHandling();

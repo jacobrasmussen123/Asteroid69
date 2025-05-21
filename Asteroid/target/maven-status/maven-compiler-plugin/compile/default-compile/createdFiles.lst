@@ -1,7 +1,6 @@
 dk/sdu/cbse/asteroid/AsteroidSplitterMain.class
 dk/sdu/cbse/asteroid/Asteroid.class
+dk/sdu/cbse/asteroid/Asteroid$Size.class
 module-info.class
 dk/sdu/cbse/asteroid/AsteroidPlugin.class
 dk/sdu/cbse/asteroid/AsteroidProcessor.class
-dk/sdu/cbse/asteroid/AsteroidSplitterMain$1.class
-dk/sdu/cbse/asteroid/Asteroid$Size.class

@@ -9,8 +9,8 @@ public class Asteroid extends Entity {
         return Color.YELLOW;
     }
     public enum Size {
-        LARGE(30, 2, 150),
-        MEDIUM(20, 1, 250),
+        LARGE(50, 2, 150),
+        MEDIUM(30, 1, 250),
         SMALL(10, 0, 350);
 
         public final float radius;
