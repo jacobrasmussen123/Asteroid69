@@ -16,7 +16,7 @@
     <module>Player</module>
     <module>Bullet</module>
    <module>Enemy</module>
-    <module>CommonBullet</module>
+
     <module>Asteroid</module>
     <module>Collision</module>
   </modules>
@@ -88,7 +88,7 @@
             <!-- 3) any legacy jars (if you use libs/) -->
             <argument>--class-path=libs/*</argument>
             <!-- 4) launch your module/main -->
-            <argument>--module=Core/dk.sdu.cbse.core.App</argument>
+            <argument>--module=Core/dk.sdu.cbse.core.Main</argument>
           </arguments>
         </configuration>
       </plugin>

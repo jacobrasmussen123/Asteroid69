@@ -1,10 +1,11 @@
-module Core{
-
-
-    uses dk.sdu.cbse.common.services.IGamePluginService;
+module Core {
     requires javafx.graphics;
     requires javafx.controls;
     requires Common;
 
-    opens dk.sdu.cbse.core to javafx.graphics;
+    exports dk.sdu.cbse.core;
+
+    uses dk.sdu.cbse.common.services.IEntityProcessingService;
+    uses dk.sdu.cbse.common.services.IGamePluginService;
+    uses dk.sdu.cbse.common.services.IPostEntityProcessingService;
 }

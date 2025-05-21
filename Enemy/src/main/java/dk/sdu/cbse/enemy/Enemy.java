@@ -1,7 +1,7 @@
 package dk.sdu.cbse.enemy;
 
 
-import dk.sdu.cbse.common.Entity;
+import dk.sdu.cbse.common.data.Entity;
 import dk.sdu.cbse.enemy.systems.ShipDesign;
 
 public class Enemy extends Entity {
@@ -19,11 +19,6 @@ public class Enemy extends Entity {
         setRotation(0);
     }
 
-    public void takeDamage(int damage) {
-        health = Math.max(0, health - damage);
-    }
-    public int getHealth() { return health; }
-    public int getMaxHealth() { return maxHealth; }
 
     public double getDx() { return dx; }
     public double getDy() { return dy; }

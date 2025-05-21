@@ -1,6 +1,6 @@
 package dk.sdu.cbse.asteroid;
 
-import dk.sdu.cbse.common.Entity;
+import dk.sdu.cbse.common.data.Entity;
 
 public class Asteroid extends Entity {
     public enum Size {
@@ -56,9 +56,7 @@ public class Asteroid extends Entity {
         else if (getY() > height + size.radius) setY(-size.radius);
     }
 
-    public Size getSize() {
-        return size;
-    }
+
 
     public double getDx() {
         return dx;

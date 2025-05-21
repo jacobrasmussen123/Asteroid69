@@ -1,6 +1,6 @@
 package dk.sdu.cbse.player.systems;
 
-import dk.sdu.cbse.common.WallCollisionMode;
+import dk.sdu.cbse.common.data.WallCollisionMode;
 import  dk.sdu.cbse.player.Player;
 
 public class MovementSystem {

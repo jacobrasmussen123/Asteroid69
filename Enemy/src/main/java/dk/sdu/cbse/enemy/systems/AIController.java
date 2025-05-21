@@ -1,6 +1,6 @@
 package dk.sdu.cbse.enemy.systems;
 
-import dk.sdu.cbse.common.Entity;
+import dk.sdu.cbse.common.data.Entity;
 import dk.sdu.cbse.enemy.Enemy;
 import java.util.Random;
 

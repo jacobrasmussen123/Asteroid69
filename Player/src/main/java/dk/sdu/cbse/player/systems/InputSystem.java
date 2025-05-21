@@ -2,7 +2,7 @@ package dk.sdu.cbse.player.systems;
 
 
 
-import dk.sdu.cbse.common.GameKeys;
+import dk.sdu.cbse.common.data.GameKeys;
 
 public class InputSystem {
     public boolean isRotatingLeft(GameKeys keys) {

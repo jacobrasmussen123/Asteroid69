@@ -1,69 +1,92 @@
 package dk.sdu.cbse.enemy;
 
-import dk.sdu.cbse.common.*;
+import dk.sdu.cbse.common.data.Entity;
+import dk.sdu.cbse.common.data.GameData;
+import dk.sdu.cbse.common.data.World;
+import dk.sdu.cbse.common.data.Health;
 import dk.sdu.cbse.common.services.IGamePluginService;
-import dk.sdu.cbse.enemy.systems.AIController;
+import dk.sdu.cbse.enemy.Enemy;
+import javafx.scene.paint.Color;
 
+import java.util.List;
 import java.util.Random;
-import dk.sdu.cbse.bullet.*;
-import dk.sdu.cbse.enemy.systems.MovementSystem;
 
 public class EnemyPlugin implements IGamePluginService {
-    // Add these new fields
-    private final AIController aiController = new AIController();
-    private final Random random = new Random();
-    private String enemyId;
-    private final MovementSystem movementSystem = new MovementSystem();
-    private final BulletSystem bulletSystem = new BulletSystem();
+    private static final int ENEMY_COUNT = 5;
 
     @Override
-    public void start(GameData data, World world) {
-        Enemy e = new Enemy();
-        e.setX(data.getDisplayWidth() / 2.0);
-        e.setY(data.getDisplayHeight() / 2.0);
-        enemyId = world.addEntity(e);
+    public void start(GameData gameData, World world) {
+        for (int i = 0; i < ENEMY_COUNT; i++) {
+            Entity enemy = createEnemyShip(gameData);
+            world.addEntity(enemy);
+        }
     }
 
 
+
+    @Override
     public void stop(GameData gameData, World world) {
-
+        // Remove _all_ Enemy instances, not just the last one
+        List<Entity> enemies = world.getEntities(Enemy.class);
+        for (Entity e : enemies) {
+            world.removeEntity(e);
+        }
     }
 
-    @Override
-    public void update(GameData data, World world) {
-        float dt = data.getDeltaTime();
-        Enemy e = (Enemy) world.getEntity(enemyId);
+    private Entity createEnemyShip(GameData gameData) {
+        Enemy enemy = new Enemy();
 
-        // Find player entity (you'll need to implement this)
-        Entity player = findPlayerEntity(world);
+        // Shape
+        enemy.setPolygonCoordinates(-10, -10, 20, 0, -10, 10);
 
-        // AI-controlled movement
-        aiController.updateAI(e, player, dt);
+        // Random spawn at one of the four edges
+        spawnAtEdge(enemy, gameData);
 
-        // Auto-shooting
-        if (aiController.shouldShoot(random)) {
-            bulletSystem.spawnBullet(e, world);
+        // Size & collision radius
+        enemy.setSize(16.67);
+        enemy.setRadius((float) enemy.getSize());
+
+        // Health — must add a Health component so CollisionSystem.damage() will work
+        enemy.addComponent(new Health(1));
+
+        // Visual
+        enemy.setPaint(Color.BLUE);
+
+        return enemy;
+    }
+
+    private void spawnAtEdge(Entity enemy, GameData gameData) {
+        Random rnd = new Random();
+        int edge = rnd.nextInt(4);
+        double w = gameData.getDisplayWidth();
+        double h = gameData.getDisplayHeight();
+        double x, y, rot;
+
+        switch (edge) {
+            case 0: // left
+                x = 0;
+                y = rnd.nextDouble(0, h);
+                rot = rnd.nextDouble(-90, 90);
+                break;
+            case 1: // right
+                x = w;
+                y = rnd.nextDouble(0, h);
+                rot = rnd.nextDouble(90, 270);
+                break;
+            case 2: // top
+                x = rnd.nextDouble(0, w);
+                y = 0;
+                rot = rnd.nextDouble(0, 180);
+                break;
+            default: // bottom
+                x = rnd.nextDouble(0, w);
+                y = h;
+                rot = rnd.nextDouble(180, 360);
+                break;
         }
 
-        movementSystem.moveAndHandleWalls(e, dt,
-                data.getDisplayWidth(), data.getDisplayHeight(),
-                data.getWallMode());
-
-        bulletSystem.updateBullets(world, dt,
-                data.getDisplayWidth(), data.getDisplayHeight());
-
-
+        enemy.setX(x);
+        enemy.setY(y);
+        enemy.setRotation(rot);
     }
-
-    private Entity findPlayerEntity(World world) {
-        // Implement logic to find player entity
-        for (Entity entity : world.getEntities()) {
-            if (entity.getClass().getSimpleName().equals("Player")) {
-                return entity;
-            }
-        }
-        return null;
-    }
-
-
 }

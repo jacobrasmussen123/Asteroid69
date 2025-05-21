@@ -1,4 +1,4 @@
-package dk.sdu.cbse.common;
+package dk.sdu.cbse.common.asteroid;
 
 public enum AsteroidSize {
     LARGE(30, true),

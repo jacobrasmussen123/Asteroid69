@@ -1,7 +1,6 @@
 package dk.sdu.cbse.enemy.systems;
 
-import dk.sdu.cbse.common.WallCollisionMode;
-import dk.sdu.cbse.enemy.Enemy;
+import dk.sdu.cbse.common.data.WallCollisionMode;
 import dk.sdu.cbse.enemy.Enemy;
 
 public class MovementSystem {
