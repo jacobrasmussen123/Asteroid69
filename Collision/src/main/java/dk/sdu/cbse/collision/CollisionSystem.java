@@ -30,13 +30,7 @@ public class CollisionSystem implements IPostEntityProcessingService {
         }
     }
 
-/*
-    public CollisionSystem() {
-        asteroidSplitter = ServiceLoader.load(AsteroidSplitter.class)
-                .findFirst()
-                .orElse((original, world) -> {});
-    }
-*/
+
     @Override
     public void process(GameData gameData, World world) {
         List<Entity> entityList = new ArrayList<>(world.getEntities());

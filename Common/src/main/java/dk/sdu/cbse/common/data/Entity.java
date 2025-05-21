@@ -1,5 +1,6 @@
 package dk.sdu.cbse.common.data;
 
+import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 
 import java.io.Serializable;
@@ -22,6 +23,11 @@ public class Entity implements Serializable {
     private Boolean dead = false;
     private String type = getClass().getSimpleName();
     private final Map<Class<?>, Object> components = new HashMap<>();
+    private Color color = Color.RED;
+
+    public Color getBaseColor() {
+        return color;
+    }
 
     public String getID() {
         return ID.toString();

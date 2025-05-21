@@ -1,8 +1,13 @@
 package dk.sdu.cbse.asteroid;
 
 import dk.sdu.cbse.common.data.Entity;
+import javafx.scene.paint.Color;
 
 public class Asteroid extends Entity {
+    @Override
+    public Color getBaseColor() {
+        return Color.YELLOW;
+    }
     public enum Size {
         LARGE(30, 2, 150),
         MEDIUM(20, 1, 250),

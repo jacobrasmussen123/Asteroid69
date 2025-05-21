@@ -3,6 +3,7 @@ package dk.sdu.cbse.enemy;
 
 import dk.sdu.cbse.common.data.Entity;
 import dk.sdu.cbse.enemy.systems.ShipDesign;
+import javafx.scene.paint.Color;
 
 public class Enemy extends Entity {
     public static final double ACCEL     = 200;  // px/sec²
@@ -12,6 +13,10 @@ public class Enemy extends Entity {
     private int health = maxHealth;
     private double dx = 0, dy = 0;
 
+    @Override
+    public Color getBaseColor() {
+        return Color.GREEN;
+    }
     public Enemy() {
         ShipDesign design = ShipDesign.random();
         setPolygonCoordinates(design.getShape());

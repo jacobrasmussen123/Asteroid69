@@ -1,5 +1,6 @@
 module Asteroid {
     requires Common;
+    requires javafx.graphics;
 
     exports dk.sdu.cbse.asteroid;
 

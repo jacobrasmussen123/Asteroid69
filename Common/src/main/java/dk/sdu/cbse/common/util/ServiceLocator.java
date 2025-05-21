@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 public enum ServiceLocator {
 
-    /*INSTANCE;
+    INSTANCE;
 
     private static final Map<Class, ServiceLoader> loadermap = new HashMap<>();
     private final ModuleLayer layer;
@@ -71,5 +71,5 @@ public enum ServiceLocator {
 
         return list;
     }
-*/
+
 }

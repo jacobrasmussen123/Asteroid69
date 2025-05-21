@@ -1,142 +1,184 @@
 package dk.sdu.cbse.core;
 
-import dk.sdu.cbse.common.data.Entity;
-import dk.sdu.cbse.common.data.GameData;
-import dk.sdu.cbse.common.data.GameKeys;
-import dk.sdu.cbse.common.data.World;
-import dk.sdu.cbse.common.services.IEntityProcessingService;
+import dk.sdu.cbse.common.data.*;
 import dk.sdu.cbse.common.services.IGamePluginService;
-import dk.sdu.cbse.common.services.IPostEntityProcessingService;
-import java.util.Collection;
-import java.util.Map;
-import java.util.ServiceLoader;
-import java.util.concurrent.ConcurrentHashMap;
-import static java.util.stream.Collectors.toList;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.event.EventHandler;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import dk.sdu.cbse.common.services.IEntityProcessingService;
+import dk.sdu.cbse.common.services.IPostEntityProcessingService;
+
+import java.util.*;
 
 public class Main extends Application {
 
     private final GameData gameData = new GameData();
     private final World world = new World();
-    private final Map<Entity, Polygon> polygons = new ConcurrentHashMap<>();
-    private final Pane gameWindow = new Pane();
+    private final List<IGamePluginService> plugins = new ArrayList<>();
+    private final Map<String, Node> entityViews = new HashMap<>();
+    private final Set<KeyCode> activeKeys = new HashSet<>();
 
-    public static void main(String[] args) {
-        launch(Main.class);
-    }
+    private Pane gamePane;
+    private Scene scene;
+
+    private Label wallModeLabel;
+
+    private final List<IEntityProcessingService> processors     = new ArrayList<>();
+    private final List<IPostEntityProcessingService> postProcessors = new ArrayList<>();
 
     @Override
-    public void start(Stage window) throws Exception {
-        Text text = new Text(10, 20, "Destroyed asteroids: 0");
-        gameWindow.setPrefSize(gameData.getDisplayWidth(), gameData.getDisplayHeight());
-        gameWindow.getChildren().add(text);
+    public void start(Stage primaryStage) {
+        gamePane = new Pane();
+        gamePane.setStyle("-fx-background-color: blue;");
+        scene = new Scene(gamePane, 1600, 900);
 
-        Scene scene = new Scene(gameWindow);
-        scene.setOnKeyPressed(event -> {
-            if (event.getCode().equals(KeyCode.LEFT)) {
-                gameData.getKeys().setKey(GameKeys.LEFT, true);
-            }
-            if (event.getCode().equals(KeyCode.RIGHT)) {
-                gameData.getKeys().setKey(GameKeys.RIGHT, true);
-            }
-            if (event.getCode().equals(KeyCode.UP)) {
-                gameData.getKeys().setKey(GameKeys.UP, true);
-            }
-            if (event.getCode().equals(KeyCode.SPACE)) {
-                gameData.getKeys().setKey(GameKeys.SPACE, true);
-            }
-        });
-        scene.setOnKeyReleased(event -> {
-            if (event.getCode().equals(KeyCode.LEFT)) {
-                gameData.getKeys().setKey(GameKeys.LEFT, false);
-            }
-            if (event.getCode().equals(KeyCode.RIGHT)) {
-                gameData.getKeys().setKey(GameKeys.RIGHT, false);
-            }
-            if (event.getCode().equals(KeyCode.UP)) {
-                gameData.getKeys().setKey(GameKeys.UP, false);
-            }
-            if (event.getCode().equals(KeyCode.SPACE)) {
-                gameData.getKeys().setKey(GameKeys.SPACE, false);
-            }
+        setupKeyHandling();
+        setupLabels();
 
-        });
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Dietz Asteroids");
+        primaryStage.setFullScreenExitHint("");
+        primaryStage.show();
 
-        // Lookup all Game Plugins using ServiceLoader
-        for (IGamePluginService iGamePlugin : getPluginServices()) {
-            iGamePlugin.start(gameData, world);
-        }
-        for (Entity entity : world.getEntities()) {
-            Polygon polygon = new Polygon(entity.getPolygonCoordinates());
-            polygons.put(entity, polygon);
-            gameWindow.getChildren().add(polygon);
-        }
-        render();
-        window.setScene(scene);
-        window.setTitle("ASTEROIDS");
-        window.show();
-    }
+        loadPlugins();     // <-- plugins start() called once here
+        loadProcessors();  // <-- processors & postProcessors loaded once
+        resizeArena();
 
-    private void render() {
+        scene.widthProperty().addListener((obs, oldVal, newVal) -> resizeArena());
+        scene.heightProperty().addListener((obs, oldVal, newVal) -> resizeArena());
+
         new AnimationTimer() {
+            private long last = System.nanoTime();
+
             @Override
             public void handle(long now) {
-                update();
-                draw();
-                gameData.getKeys().update();
-            }
+                float dt = (now - last) / 1_000_000_000f;
+                last = now;
 
+                gameData.setDeltaTime(dt);
+                updateKeys();
+
+                // ← removed: for (IGamePluginService p : plugins) { p.start(...); }
+
+                // run movement / AI / input processors every frame
+                for (IEntityProcessingService s : processors) {
+                    s.process(gameData, world);
+                }
+                // run collisions, cleanup, etc.
+                for (IPostEntityProcessingService s : postProcessors) {
+                    s.process(gameData, world);
+                }
+
+                syncViews();
+            }
         }.start();
     }
 
-    private void update() {
-        for (IEntityProcessingService entityProcessorService : getEntityProcessingServices()) {
-            entityProcessorService.process(gameData, world);
-        }
-        for (IPostEntityProcessingService postEntityProcessorService : getPostEntityProcessingServices()) {
-            postEntityProcessorService.process(gameData, world);
-        }
+    private void setupKeyHandling() {
+        scene.setOnKeyPressed(event -> {
+            KeyCode code = event.getCode();
+            activeKeys.add(code);
+            if (code == KeyCode.F) {
+                Stage stage = (Stage) scene.getWindow();
+                stage.setFullScreen(!stage.isFullScreen());
+            } else if (code == KeyCode.TAB) {
+                WallCollisionMode current = gameData.getWallMode();
+                WallCollisionMode[] modes = WallCollisionMode.values();
+                int next = (current.ordinal() + 1) % modes.length;
+                gameData.setWallMode(modes[next]);
+                wallModeLabel.setText("Wall Mode: " + modes[next]);
+            }
+        });
+        scene.setOnKeyReleased(event -> activeKeys.remove(event.getCode()));
     }
 
-    private void draw() {
-        for (Entity polygonEntity : polygons.keySet()) {
-            if(!world.getEntities().contains(polygonEntity)){
-                Polygon removedPolygon = polygons.get(polygonEntity);
-                polygons.remove(polygonEntity);
-                gameWindow.getChildren().remove(removedPolygon);
+    private void updateKeys() {
+        GameKeys keys = gameData.getKeys();
+        keys.setKey(GameKeys.UP,
+                activeKeys.contains(KeyCode.UP) || activeKeys.contains(KeyCode.W)
+        );
+        keys.setKey(GameKeys.LEFT,
+                activeKeys.contains(KeyCode.LEFT) || activeKeys.contains(KeyCode.A)
+        );
+        keys.setKey(GameKeys.RIGHT,
+                activeKeys.contains(KeyCode.RIGHT) || activeKeys.contains(KeyCode.D)
+        );
+        keys.setKey(GameKeys.SPACE, activeKeys.contains(KeyCode.SPACE));
+        keys.update();
+    }
+
+    private void setupLabels() {
+        wallModeLabel = new Label("Wall Mode: " + gameData.getWallMode());
+        wallModeLabel.setStyle("-fx-font-size:14px; -fx-text-fill:#fff; "
+                + "-fx-background-color:rgba(197,197,197,0.6);");
+        wallModeLabel.setTranslateX(10);
+        wallModeLabel.setTranslateY(10);
+        gamePane.getChildren().add(wallModeLabel);
+    }
+
+    private void loadPlugins() {
+        ServiceLoader.load(IGamePluginService.class).forEach(p -> {
+            plugins.add(p);
+            p.start(gameData, world);   // ← each plugin spawns its entities exactly once
+        });
+    }
+
+    private void loadProcessors() {
+        ServiceLoader.load(IEntityProcessingService.class)
+                .forEach(processors::add);
+        ServiceLoader.load(IPostEntityProcessingService.class)
+                .forEach(postProcessors::add);
+    }
+
+    private void resizeArena() {
+        double width = scene.getWidth(), height = scene.getHeight();
+        gamePane.setPrefSize(width, height);
+        gameData.setDisplayWidth((int) width);
+        gameData.setDisplayHeight((int) height);
+    }
+
+    private void syncViews() {
+        // remove views for deleted entities
+        entityViews.entrySet().removeIf(entry -> {
+            if (world.getEntity(entry.getKey()) == null) {
+                gamePane.getChildren().remove(entry.getValue());
+                return true;
+            }
+            return false;
+        });
+
+        // add/update views for existing entities
+        for (Entity e : world.getEntities()) {
+            Node view = entityViews.get(e.getID());
+            if (view == null) {
+                Polygon poly = new Polygon(e.getPolygonCoordinates());
+                poly.setRotate(e.getRotation());
+                poly.setTranslateX(e.getX());
+                poly.setTranslateY(e.getY());
+                Color base = e.getBaseColor();
+                poly.setFill(base.darker());
+                poly.setStroke(base.brighter());
+                poly.setStrokeWidth(3);
+                gamePane.getChildren().add(poly);
+                entityViews.put(e.getID(), poly);
+            } else {
+                view.setTranslateX(e.getX());
+                view.setTranslateY(e.getY());
+                view.setRotate(e.getRotation());
             }
         }
-
-        for (Entity entity : world.getEntities()) {
-            Polygon polygon = polygons.get(entity);
-            if (polygon == null) {
-                polygon = new Polygon(entity.getPolygonCoordinates());
-                polygons.put(entity, polygon);
-                gameWindow.getChildren().add(polygon);
-            }
-            polygon.setTranslateX(entity.getX());
-            polygon.setTranslateY(entity.getY());
-            polygon.setRotate(entity.getRotation());
-        }
-
     }
 
-    private Collection<? extends IGamePluginService> getPluginServices() {
-        return ServiceLoader.load(IGamePluginService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
-    }
-
-    private Collection<? extends IEntityProcessingService> getEntityProcessingServices() {
-        return ServiceLoader.load(IEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
-    }
-
-    private Collection<? extends IPostEntityProcessingService> getPostEntityProcessingServices() {
-        return ServiceLoader.load(IPostEntityProcessingService.class).stream().map(ServiceLoader.Provider::get).collect(toList());
+    public static void main(String[] args) {
+        launch(args);
     }
 }

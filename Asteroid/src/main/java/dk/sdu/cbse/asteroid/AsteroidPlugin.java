@@ -6,7 +6,7 @@ import dk.sdu.cbse.common.services.IGamePluginService;
 import java.util.Random;
 
 public class AsteroidPlugin implements IGamePluginService {
-    private static final int INITIAL_ASTEROID_COUNT = 7;
+    private static final int INITIAL_ASTEROID_COUNT = 1;
     private final Random random = new Random();
 
     @Override
