@@ -8,9 +8,10 @@ public class GameData {
     private int displayWidth  = 800 ;
     private int displayHeight = 800;
     private final GameKeys keys = new GameKeys();
-
     private float deltaTime;
     private Scene scene;
+
+
     public Scene getScene() {
         return scene;
     }

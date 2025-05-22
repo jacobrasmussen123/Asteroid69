@@ -56,18 +56,18 @@ public class CollisionSystem implements IPostEntityProcessingService {
             return;
         }
         if (entity1Type.equals("Asteroid") && entity2Type.equals("Player")){
-            //Player hit by asteroid, removes player
+
             world.removeEntity(entity2);
             return;
         }
 
         if (entity1Type.equals("Enemy") && entity2Type.equals("Asteroid")){
-            //Enemy hit by asteroid, removes player
+
             world.removeEntity(entity1);
             return;
         }
         if (entity1Type.equals("Asteroid") && entity2Type.equals("Enemy")){
-            //Enemy hit by asteroid, removes player
+
             world.removeEntity(entity2);
             return;
         }
@@ -78,7 +78,7 @@ public class CollisionSystem implements IPostEntityProcessingService {
             return;
         }
         if (entity1Type.equals("Asteroid") && entity2Type.equals("Bullet")) {
-            //Asteroid hit by bullet, removes bullet and splits asteroid into two.
+
             world.removeEntity(entity2);
             splitAndRemoveAsteroid(entity1, world);
             return;
@@ -90,19 +90,19 @@ public class CollisionSystem implements IPostEntityProcessingService {
             return;
         }
         if (entity1Type.equals("Player") && entity2Type.equals("Bullet")) {
-            //Player hit by bullet, and loses 1 hp per hit, health starts at 3
+
             world.removeEntity(entity2);
             damage(entity1, world);
             return;
         }
         if (entity1Type.equals("Bullet") && entity2Type.equals("Enemy")) {
-            //Enemy hit by bullet, and loses 1 hp per hit, health starts at 3
+
             world.removeEntity(entity1);
             damage(entity2, world);
             return;
         }
         if (entity1Type.equals("Enemy") && entity2Type.equals("Bullet")) {
-            //Enemy hit by bullet, and loses 1 hp per hit, health starts at 3
+
             world.removeEntity(entity2);
             damage(entity1, world);
             return;
@@ -114,7 +114,7 @@ public class CollisionSystem implements IPostEntityProcessingService {
             return;
         }
         if (entity1Type.equals("Player") && entity2Type.equals("Enemy")) {
-            //Enemy and Player Crashes into each other
+
             world.removeEntity(entity1);
             world.removeEntity(entity2);
         }

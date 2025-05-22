@@ -49,8 +49,8 @@ public class Main extends Application {
         primaryStage.setFullScreenExitHint("");
         primaryStage.show();
 
-        loadPlugins();     // <-- plugins start() called once here
-        loadProcessors();  // <-- processors & postProcessors loaded once
+        loadPlugins();     // plugins start() called once here
+        loadProcessors();  // processors & postProcessors loaded once
         resizeArena();
 
         scene.widthProperty().addListener((obs, oldVal, newVal) -> resizeArena());
@@ -67,13 +67,9 @@ public class Main extends Application {
                 gameData.setDeltaTime(dt);
                 updateKeys();
 
-                // ← removed: for (IGamePluginService p : plugins) { p.start(...); }
-
-                // run movement / AI / input processors every frame
                 for (IEntityProcessingService s : processors) {
                     s.process(gameData, world);
                 }
-                // run collisions, cleanup, etc.
                 for (IPostEntityProcessingService s : postProcessors) {
                     s.process(gameData, world);
                 }
@@ -128,7 +124,7 @@ public class Main extends Application {
     private void loadPlugins() {
         ServiceLoader.load(IGamePluginService.class).forEach(p -> {
             plugins.add(p);
-            p.start(gameData, world);   // ← each plugin spawns its entities exactly once
+            p.start(gameData, world);   // each plugin spawns its entities exactly once
         });
     }
 

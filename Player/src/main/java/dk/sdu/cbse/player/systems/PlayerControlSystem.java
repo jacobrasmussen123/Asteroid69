@@ -18,7 +18,6 @@ public class PlayerControlSystem implements IEntityProcessingService {
     private static final double DECELERATION_FACTOR = 0.97;
 
     public PlayerControlSystem() {
-        // load any BulletSPI provider (null if Bullet module absent)
         this.bulletSPI = ServiceLoader
                 .load(BulletSPI.class)
                 .findFirst()
@@ -33,7 +32,6 @@ public class PlayerControlSystem implements IEntityProcessingService {
             Player p = (Player) e;
             GameKeys keys = gameData.getKeys();
 
-            // —— ROTATION ——
             if (keys.isDown(GameKeys.LEFT)) {
                 p.setRotation(p.getRotation() - Player.ROT_SPEED * dt);
             }
@@ -41,12 +39,11 @@ public class PlayerControlSystem implements IEntityProcessingService {
                 p.setRotation(p.getRotation() + Player.ROT_SPEED * dt);
             }
 
-            // —— THRUST vs DECELERATION ——
             if (keys.isDown(GameKeys.UP)) {
                 double rad = Math.toRadians(p.getRotation());
                 p.setDx(p.getDx() + Math.cos(rad) * Player.ACCEL * dt);
                 p.setDy(p.getDy() + Math.sin(rad) * Player.ACCEL * dt);
-                // clamp to MAX_SPEED
+
                 double speed = Math.hypot(p.getDx(), p.getDy());
                 if (speed > Player.MAX_SPEED) {
                     double scale = Player.MAX_SPEED / speed;
@@ -58,7 +55,6 @@ public class PlayerControlSystem implements IEntityProcessingService {
                 p.setDy(p.getDy() * Math.pow(DECELERATION_FACTOR, dt * 60));
             }
 
-            // —— MOVE & HANDLE WALLS ——
             double newX = p.getX() + p.getDx() * dt;
             double newY = p.getY() + p.getDy() * dt;
             double dx   = p.getDx();
@@ -95,14 +91,12 @@ public class PlayerControlSystem implements IEntityProcessingService {
             p.setDx(dx);
             p.setDy(dy);
 
-            // —— SHOOTING ——
             shootCooldown -= dt;
             if (bulletSPI != null && keys.isDown(GameKeys.SPACE) && shootCooldown <= 0f) {
                 world.addEntity(bulletSPI.createBullet(p, gameData));
                 shootCooldown = FIRE_RATE;
             }
 
-            // —— UPDATE KEY STATES ——
             keys.update();
         }
     }

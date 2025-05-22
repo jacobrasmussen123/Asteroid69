@@ -23,19 +23,19 @@ public class AsteroidPlugin implements IGamePluginService {
             // Spawn at a random edge
             double x, y;
             switch (random.nextInt(4)) {
-                case 0: // left
+                case 0:
                     x = 0;
                     y = random.nextDouble() * height;
                     break;
-                case 1: // right
+                case 1:
                     x = width;
                     y = random.nextDouble() * height;
                     break;
-                case 2: // top
+                case 2:
                     x = random.nextDouble() * width;
                     y = 0;
                     break;
-                default: // bottom
+                default:
                     x = random.nextDouble() * width;
                     y = height;
             }

@@ -33,8 +33,6 @@ public class Entity implements Serializable {
         return ID.toString();
     }
 
-
-
     public void setPolygonCoordinates(double... coordinates ) {
         this.polygonCoordinates = coordinates;
     }
@@ -51,7 +49,6 @@ public class Entity implements Serializable {
     public double getX() {
         return x;
     }
-
 
     public void setY(double y) {
         this.y = y;
@@ -113,9 +110,8 @@ public class Entity implements Serializable {
         return components.containsKey(clazz);
     }
 
-    public String getType() {
-        return type;}
-    public void setType(String type) {
-        this.type = type; }
+    public String getType() {return type;}
+
+    public void setType(String type) {this.type = type; }
 
 }

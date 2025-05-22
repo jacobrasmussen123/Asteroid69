@@ -12,12 +12,9 @@ public class PlayerPlugin implements IGamePluginService {
 
     @Override
     public void start(GameData gameData, World world) {
-        // Create and configure the player entity
         Player player = new Player();
         player.setX(gameData.getDisplayWidth()  / 2.0);
         player.setY(gameData.getDisplayHeight() / 2.0);
-
-        // Add to world and remember its ID
         playerId = world.addEntity(player);
     }
 

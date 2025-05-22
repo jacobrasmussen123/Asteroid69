@@ -6,9 +6,9 @@ import dk.sdu.cbse.enemy.systems.ShipDesign;
 import javafx.scene.paint.Color;
 
 public class Enemy extends Entity {
-    public static final double ACCEL     = 200;  // px/sec²
-    public static final double MAX_SPEED = 300;  // px/sec
-    public static final double ROT_SPEED = 180;  // deg/sec
+    public static final double ACCEL     = 200;
+    public static final double MAX_SPEED = 300;
+    public static final double ROT_SPEED = 180;
     private int maxHealth = 100;
     private int health = maxHealth;
     private double dx = 0, dy = 0;

@@ -23,10 +23,8 @@ public class EnemyPlugin implements IGamePluginService {
     }
 
 
-
     @Override
     public void stop(GameData gameData, World world) {
-        // Remove _all_ Enemy instances, not just the last one
         List<Entity> enemies = world.getEntities(Enemy.class);
         for (Entity e : enemies) {
             world.removeEntity(e);
@@ -38,18 +36,10 @@ public class EnemyPlugin implements IGamePluginService {
 
         // Shape
         enemy.setPolygonCoordinates(-10, -10, 20, 0, -10, 10);
-
-        // Random spawn at one of the four edges
         spawnAtEdge(enemy, gameData);
-
-        // Size & collision radius
         enemy.setSize(16.67);
         enemy.setRadius((float) enemy.getSize());
-
-        // Health — must add a Health component so CollisionSystem.damage() will work
-        enemy.addComponent(new Health(1));
-
-        // Visual
+        enemy.addComponent(new Health(2));
         enemy.setPaint(Color.BLUE);
 
         return enemy;
@@ -63,22 +53,22 @@ public class EnemyPlugin implements IGamePluginService {
         double x, y, rot;
 
         switch (edge) {
-            case 0: // left
+            case 0:
                 x = 0;
                 y = rnd.nextDouble(0, h);
                 rot = rnd.nextDouble(-90, 90);
                 break;
-            case 1: // right
+            case 1:
                 x = w;
                 y = rnd.nextDouble(0, h);
                 rot = rnd.nextDouble(90, 270);
                 break;
-            case 2: // top
+            case 2:
                 x = rnd.nextDouble(0, w);
                 y = 0;
                 rot = rnd.nextDouble(0, 180);
                 break;
-            default: // bottom
+            default:
                 x = rnd.nextDouble(0, w);
                 y = h;
                 rot = rnd.nextDouble(180, 360);

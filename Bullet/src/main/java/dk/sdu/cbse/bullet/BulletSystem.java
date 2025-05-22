@@ -16,20 +16,17 @@ public class BulletSystem implements IEntityProcessingService, BulletSPI {
 
 
 
-
     @Override
     public Entity createBullet(Entity e, GameData gameData) {
         Bullet bullet = new Bullet();
 
-        // Compute a safe spawn distance so bullets don't collide with their shooter
+        //  Make safe spawn distance so bullets don't collide with their shooter
         double safeDistance = e.getRadius() + bullet.getRadius() + 10f; // adjust the buffer as needed
 
-        // Use the shooter's rotation (in degrees) to calculate spawn offset
         double rotation = e.getRotation();
         double spawnX = e.getX() + (double) Math.cos(Math.toRadians(rotation)) * safeDistance;
         double spawnY = e.getY() + (double) Math.sin(Math.toRadians(rotation)) * safeDistance;
 
-        // Position and orient the bullet
         bullet.setX(spawnX);
         bullet.setY(spawnY);
         bullet.setRotation(rotation);
@@ -40,20 +37,17 @@ public class BulletSystem implements IEntityProcessingService, BulletSPI {
     @Override
     public void process(GameData gameData, World world) {
         for (Entity ent : world.getEntities(Bullet.class)) {
-            // move...
             double dx = Math.cos(Math.toRadians(ent.getRotation())) * config.getSpeed() * gameData.getDeltaTime();
             double dy = Math.sin(Math.toRadians(ent.getRotation())) * config.getSpeed() * gameData.getDeltaTime();
             ent.setX(ent.getX() + dx);
             ent.setY(ent.getY() + dy);
-
-            // now give it a visible shape:
             setShape(ent);
         }
     }
 
     private void setShape(Entity e) {
         float r = config.getRadius();
-        // a little square of side 2r
+        //The shape
         e.setPolygonCoordinates(
                 -r, -r,
                 r, -r,
