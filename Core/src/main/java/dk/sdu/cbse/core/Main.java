@@ -45,7 +45,7 @@ public class Main extends Application {
         setupLabels();
 
         primaryStage.setScene(scene);
-        primaryStage.setTitle("Dietz Asteroids");
+        primaryStage.setTitle("Eris Emma Myers ASTEROID KILLERS");
         primaryStage.setFullScreenExitHint("");
         primaryStage.show();
 
