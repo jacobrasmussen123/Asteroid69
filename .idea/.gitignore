@@ -1,3 +1,18 @@
+# Ignore all per-module Maven “mods-mvn” outputs
+**/mods-mvn/
+
+# Ignore all Maven/Gradle target/build output
+**/target/
+**/build/
+
+# Ignore any compiled JARs
+**/*.jar
+
+# (Optional) But if you have a /plugins folder whose JARs you DO want to keep,
+# you can un-ignore it:
+!plugins/
+!plugins/*.jar
+
 # Default ignored files
 /shelf/
 /workspace.xml
@@ -5,4 +20,4 @@
 /httpRequests/
 # Datasource local storage ignored files
 /dataSources/
-/dataSources.local.xml
+/dataSources.local.xm
