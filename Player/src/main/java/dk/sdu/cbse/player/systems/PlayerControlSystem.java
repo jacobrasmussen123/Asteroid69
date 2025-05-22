@@ -7,8 +7,10 @@ import dk.sdu.cbse.common.data.GameKeys;
 import dk.sdu.cbse.common.data.World;
 import dk.sdu.cbse.common.data.WallCollisionMode;
 import dk.sdu.cbse.common.services.IEntityProcessingService;
+import dk.sdu.cbse.common.util.ServiceLocator;
 import dk.sdu.cbse.player.Player;
 
+import java.util.List;
 import java.util.ServiceLoader;
 
 public class PlayerControlSystem implements IEntityProcessingService {
@@ -18,10 +20,8 @@ public class PlayerControlSystem implements IEntityProcessingService {
     private static final double DECELERATION_FACTOR = 0.97;
 
     public PlayerControlSystem() {
-        this.bulletSPI = ServiceLoader
-                .load(BulletSPI.class)
-                .findFirst()
-                .orElse(null);
+        List<BulletSPI> bullets = ServiceLocator.INSTANCE.locateAll(BulletSPI.class);
+        this.bulletSPI = bullets.isEmpty() ? null : bullets.get(0);
     }
 
     @Override

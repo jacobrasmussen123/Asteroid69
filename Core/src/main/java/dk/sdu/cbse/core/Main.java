@@ -2,20 +2,19 @@ package dk.sdu.cbse.core;
 
 import dk.sdu.cbse.common.data.*;
 import dk.sdu.cbse.common.services.IGamePluginService;
+import dk.sdu.cbse.common.services.IEntityProcessingService;
+import dk.sdu.cbse.common.services.IPostEntityProcessingService;
+import dk.sdu.cbse.common.util.ServiceLocator;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
-import dk.sdu.cbse.common.services.IEntityProcessingService;
-import dk.sdu.cbse.common.services.IPostEntityProcessingService;
 
 import java.util.*;
 
@@ -32,7 +31,7 @@ public class Main extends Application {
 
     private Label wallModeLabel;
 
-    private final List<IEntityProcessingService> processors     = new ArrayList<>();
+    private final List<IEntityProcessingService> processors = new ArrayList<>();
     private final List<IPostEntityProcessingService> postProcessors = new ArrayList<>();
 
     @Override
@@ -49,8 +48,8 @@ public class Main extends Application {
         primaryStage.setFullScreenExitHint("");
         primaryStage.show();
 
-        loadPlugins();     // plugins start() called once here
-        loadProcessors();  // processors & postProcessors loaded once
+        loadPlugins();      // plugins start() called once here
+        loadProcessors();   // processors & postProcessors loaded once
         resizeArena();
 
         scene.widthProperty().addListener((obs, oldVal, newVal) -> resizeArena());
@@ -108,7 +107,9 @@ public class Main extends Application {
         keys.setKey(GameKeys.RIGHT,
                 activeKeys.contains(KeyCode.RIGHT) || activeKeys.contains(KeyCode.D)
         );
-        keys.setKey(GameKeys.SPACE, activeKeys.contains(KeyCode.SPACE));
+        keys.setKey(GameKeys.SPACE,
+                activeKeys.contains(KeyCode.SPACE)
+        );
         keys.update();
     }
 
@@ -121,18 +122,23 @@ public class Main extends Application {
         gamePane.getChildren().add(wallModeLabel);
     }
 
+    /**
+     * Generic loader using ServiceLocator to pick up both on-path and /plugins JARs
+     */
+    private <T> Collection<T> locateAll(Class<T> service) {
+        return ServiceLocator.INSTANCE.locateAll(service);
+    }
+
     private void loadPlugins() {
-        ServiceLoader.load(IGamePluginService.class).forEach(p -> {
+        locateAll(IGamePluginService.class).forEach(p -> {
             plugins.add(p);
-            p.start(gameData, world);   // each plugin spawns its entities exactly once
+            p.start(gameData, world);
         });
     }
 
     private void loadProcessors() {
-        ServiceLoader.load(IEntityProcessingService.class)
-                .forEach(processors::add);
-        ServiceLoader.load(IPostEntityProcessingService.class)
-                .forEach(postProcessors::add);
+        processors.addAll(locateAll(IEntityProcessingService.class));
+        postProcessors.addAll(locateAll(IPostEntityProcessingService.class));
     }
 
     private void resizeArena() {

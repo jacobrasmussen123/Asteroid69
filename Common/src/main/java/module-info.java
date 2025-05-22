@@ -5,6 +5,7 @@ module Common {
     exports dk.sdu.cbse.common.services;
     exports dk.sdu.cbse.common.asteroid;
     exports dk.sdu.cbse.common.bullet;
+    exports dk.sdu.cbse.common.util;
 
     uses dk.sdu.cbse.common.services.IGamePluginService;
     uses dk.sdu.cbse.common.services.IEntityProcessingService;

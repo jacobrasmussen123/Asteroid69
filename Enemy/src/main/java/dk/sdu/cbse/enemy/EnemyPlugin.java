@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Random;
 
 public class EnemyPlugin implements IGamePluginService {
-    private static final int ENEMY_COUNT = 5;
+    private static final int ENEMY_COUNT = 8;
 
     @Override
     public void start(GameData gameData, World world) {
@@ -35,7 +35,18 @@ public class EnemyPlugin implements IGamePluginService {
         Enemy enemy = new Enemy();
 
         // Shape
-        enemy.setPolygonCoordinates(-10, -10, 20, 0, -10, 10);
+        enemy.setPolygonCoordinates(
+                -20,   0,
+                -15, -10,
+                -5, -15,
+                5, -15,
+                15, -10,
+                20,   0,
+                15,  10,
+                5,  15,
+                -5,  15,
+                -15, 10
+        );
         spawnAtEdge(enemy, gameData);
         enemy.setSize(16.67);
         enemy.setRadius((float) enemy.getSize());

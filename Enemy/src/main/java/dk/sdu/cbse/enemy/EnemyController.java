@@ -6,11 +6,9 @@ import dk.sdu.cbse.common.data.GameData;
 import dk.sdu.cbse.common.data.WallCollisionMode;
 import dk.sdu.cbse.common.data.World;
 import dk.sdu.cbse.common.services.IEntityProcessingService;
+import dk.sdu.cbse.common.util.ServiceLocator;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.ServiceLoader;
+import java.util.*;
 
 public class EnemyController implements IEntityProcessingService {
     private final BulletSPI bulletSPI;
@@ -27,11 +25,8 @@ public class EnemyController implements IEntityProcessingService {
     private static final double SHOOT_CHANCE     = 0.02;   // chance to shoot each eligible frame
 
     public EnemyController() {
-        // load bullet factory or null if missing
-        this.bulletSPI = ServiceLoader
-                .load(BulletSPI.class)
-                .findFirst()
-                .orElse(null);
+        List<BulletSPI> bullets = ServiceLocator.INSTANCE.locateAll(BulletSPI.class);
+        this.bulletSPI = bullets.isEmpty() ? null : bullets.get(0);
     }
 
     @Override

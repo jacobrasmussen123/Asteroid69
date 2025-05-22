@@ -6,6 +6,7 @@ import dk.sdu.cbse.common.data.GameData;
 import dk.sdu.cbse.common.data.Health;
 import dk.sdu.cbse.common.data.World;
 import dk.sdu.cbse.common.services.IPostEntityProcessingService;
+import dk.sdu.cbse.common.util.ServiceLocator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,15 +18,10 @@ public class CollisionSystem implements IPostEntityProcessingService {
 
 
     public CollisionSystem() {
-        AsteroidSplitter found = ServiceLoader
-                .load(AsteroidSplitter.class)
-                .findFirst()
-                .orElse(null);
-
-        if (found != null) {
-            this.asteroidSplitter = found;
+        List<AsteroidSplitter> splitters = ServiceLocator.INSTANCE.locateAll(AsteroidSplitter.class);
+        if (!splitters.isEmpty()) {
+            this.asteroidSplitter = splitters.get(0);
         } else {
-            // Fallback: no splitting
             this.asteroidSplitter = (original, world) -> { };
         }
     }
