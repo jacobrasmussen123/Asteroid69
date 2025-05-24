@@ -25,8 +25,10 @@ public class EnemyController implements IEntityProcessingService {
     private static final double SHOOT_CHANCE     = 0.02;   // chance to shoot each eligible frame
 
     public EnemyController() {
-        List<BulletSPI> bullets = ServiceLocator.INSTANCE.locateAll(BulletSPI.class);
-        this.bulletSPI = bullets.isEmpty() ? null : bullets.get(0);
+        this.bulletSPI = ServiceLoader
+                .load(BulletSPI.class)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

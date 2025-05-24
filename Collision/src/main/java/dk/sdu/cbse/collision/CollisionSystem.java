@@ -18,13 +18,18 @@ public class CollisionSystem implements IPostEntityProcessingService {
 
 
     public CollisionSystem() {
-        List<AsteroidSplitter> splitters = ServiceLocator.INSTANCE.locateAll(AsteroidSplitter.class);
-        if (!splitters.isEmpty()) {
-            this.asteroidSplitter = splitters.get(0);
-        } else {
-            this.asteroidSplitter = (original, world) -> { };
+        AsteroidSplitter found = ServiceLoader
+                .load(AsteroidSplitter.class)
+                .findFirst()
+                .orElse(null);
+
+        if (found != null) {
+            this.asteroidSplitter = found;
+            } else {
+                // Fallback: no splitting
+                this.asteroidSplitter = (original, world) -> { };
+            }
         }
-    }
 
 
     @Override
