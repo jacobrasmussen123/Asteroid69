@@ -24,6 +24,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="Bullet" options="" />
       <module name="Common" options="" />
+      <module name="Core" options="" />
     </option>
   </component>
 </project>

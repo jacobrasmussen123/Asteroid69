@@ -1,57 +1,86 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<?xml version="1.0" encoding="UTF-8"?>
+<project
+        xmlns="http://maven.apache.org/POM/4.0.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+      http://maven.apache.org/POM/4.0.0
+      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+
+    <!-- Inherit versions & settings from the root aggregator -->
     <parent>
         <groupId>dk.sdu.cbse</groupId>
         <artifactId>Asteroid69</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+
     <artifactId>Core</artifactId>
     <packaging>jar</packaging>
-    <name>Core</name>
+    <name>Core Module</name>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <!-- Compile+link against Java 17 so JPMS (java.lang.module.*) is present -->
+        <maven.compiler.release>17</maven.compiler.release>
         <javafx.version>21.0.2</javafx.version>
+        <!-- Where JavaFX jars get copied for runtime -->
+        <modspath>${project.basedir}/../mods-mvn</modspath>
     </properties>
 
     <dependencies>
+        <!-- JavaFX modules (compile-time, on module-path) -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-base</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
             <version>${javafx.version}</version>
         </dependency>
+
+        <!-- Your shared API module -->
         <dependency>
             <groupId>dk.sdu.cbse</groupId>
             <artifactId>Common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>dk.sdu.cbse</groupId>
-            <artifactId>Collision</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- 1) Compile and link against Java 17’s standard library (JPMS included) -->
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.10.1</version>
+                <configuration>
+                    <!-- sets source, target, and bootclasspath to Java 17 -->
+                    <release>${maven.compiler.release}</release>
+                </configuration>
+            </plugin>
+
+            <!-- 2) Pull JavaFX jars into ../mods-mvn for your runtime module-path -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.3.0</version>
                 <executions>
                     <execution>
                         <id>copy-javafx</id>
-                        <phase>install</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
                             <includeGroupIds>org.openjfx</includeGroupIds>
-                            <outputDirectory>../mods-mvn</outputDirectory>
+                            <outputDirectory>${modspath}</outputDirectory>
                             <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>

@@ -2,10 +2,13 @@ module Player {
     requires Common;
     requires javafx.graphics;
 
-    uses dk.sdu.cbse.common.bullet.BulletSPI;
-    exports dk.sdu.cbse.player;
+    exports dk.sdu.cbse.player;          // renamed from dk.sdu.cbse.player.main
     exports dk.sdu.cbse.player.systems;
+    exports dk.sdu.cbse.player.shared;       // renamed shared package
 
-    provides dk.sdu.cbse.common.services.IGamePluginService with dk.sdu.cbse.player.PlayerPlugin;
-    provides dk.sdu.cbse.common.services.IEntityProcessingService with dk.sdu.cbse.player.systems.PlayerControlSystem;
+    provides dk.sdu.cbse.common.services.IGamePluginService
+            with dk.sdu.cbse.player.shared.SharedPlugin;
+    provides dk.sdu.cbse.common.services.IEntityProcessingService
+            with dk.sdu.cbse.player.systems.PlayerControlSystem;
+    uses dk.sdu.cbse.common.bullet.BulletSPI;
 }
