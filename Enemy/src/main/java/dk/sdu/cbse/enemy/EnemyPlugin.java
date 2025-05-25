@@ -50,7 +50,6 @@ public class EnemyPlugin implements IGamePluginService {
         spawnAtEdge(enemy, gameData);
         enemy.setSize(16.67);
         enemy.setRadius((float) enemy.getSize());
-        enemy.addComponent(new Health(2));
         enemy.setPaint(Color.BLUE);
 
         return enemy;

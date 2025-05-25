@@ -14,13 +14,11 @@ import java.util.List;
 public class BulletSystem implements IEntityProcessingService, BulletSPI {
     private final BulletConfig config = new BulletConfig();
 
-
-
     @Override
     public Entity createBullet(Entity e, GameData gameData) {
         Bullet bullet = new Bullet();
 
-        //  Make safe spawn distance so bullets don't collide with their shooter
+        // Make safe spawn distance so bullets don't collide with their shooter
         double safeDistance = e.getRadius() + bullet.getRadius() + 10f; // adjust the buffer as needed
 
         double rotation = e.getRotation();
@@ -30,6 +28,8 @@ public class BulletSystem implements IEntityProcessingService, BulletSPI {
         bullet.setX(spawnX);
         bullet.setY(spawnY);
         bullet.setRotation(rotation);
+
+        bullet.setOwnerType(e.getType()); // Track who fired the bullet
 
         return bullet;
     }
@@ -47,7 +47,7 @@ public class BulletSystem implements IEntityProcessingService, BulletSPI {
 
     private void setShape(Entity e) {
         float r = config.getRadius();
-        //The shape
+        // The shape
         e.setPolygonCoordinates(
                 -r, -r,
                 r, -r,

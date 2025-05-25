@@ -2,6 +2,7 @@ package dk.sdu.cbse.enemy;
 
 
 import dk.sdu.cbse.common.data.Entity;
+import dk.sdu.cbse.common.data.Health;
 import dk.sdu.cbse.enemy.systems.ShipDesign;
 import javafx.scene.paint.Color;
 
@@ -9,8 +10,7 @@ public class Enemy extends Entity {
     public static final double ACCEL     = 200;
     public static final double MAX_SPEED = 300;
     public static final double ROT_SPEED = 180;
-    private int maxHealth = 100;
-    private int health = maxHealth;
+
     private double dx = 0, dy = 0;
 
     @Override
@@ -22,6 +22,7 @@ public class Enemy extends Entity {
         setPolygonCoordinates(design.getShape());
         setRadius(10f);
         setRotation(0);
+        addComponent(new Health(1));
     }
 
 
