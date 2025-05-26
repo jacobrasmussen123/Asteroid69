@@ -59,4 +59,6 @@ public class GameData {
     }
 
 
+    public double getTime() {
+   return deltaTime; }
 }

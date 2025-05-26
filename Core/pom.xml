@@ -1,14 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project
-        xmlns="http://maven.apache.org/POM/4.0.0"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="
-      http://maven.apache.org/POM/4.0.0
-      http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="
+           http://maven.apache.org/POM/4.0.0
+           http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-
-    <!-- Inherit versions & settings from the root aggregator -->
     <parent>
         <groupId>dk.sdu.cbse</groupId>
         <artifactId>Asteroid69</artifactId>
@@ -17,18 +13,16 @@
 
     <artifactId>Core</artifactId>
     <packaging>jar</packaging>
-    <name>Core Module</name>
 
     <properties>
-        <!-- Compile+link against Java 17 so JPMS (java.lang.module.*) is present -->
+        <!-- compile & run against Java 17 so JPMS (java.lang.module.*) is available -->
         <maven.compiler.release>17</maven.compiler.release>
         <javafx.version>21.0.2</javafx.version>
-        <!-- Where JavaFX jars get copied for runtime -->
         <modspath>${project.basedir}/../mods-mvn</modspath>
     </properties>
 
     <dependencies>
-        <!-- JavaFX modules (compile-time, on module-path) -->
+        <!-- JavaFX modules -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-base</artifactId>
@@ -45,7 +39,7 @@
             <version>${javafx.version}</version>
         </dependency>
 
-        <!-- Your shared API module -->
+        <!-- your shared API module -->
         <dependency>
             <groupId>dk.sdu.cbse</groupId>
             <artifactId>Common</artifactId>
@@ -55,18 +49,17 @@
 
     <build>
         <plugins>
-            <!-- 1) Compile and link against Java 17’s standard library (JPMS included) -->
+            <!-- 1) Compile against Java 17 APIs (including java.lang.module) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.10.1</version>
                 <configuration>
-                    <!-- sets source, target, and bootclasspath to Java 17 -->
                     <release>${maven.compiler.release}</release>
                 </configuration>
             </plugin>
 
-            <!-- 2) Pull JavaFX jars into ../mods-mvn for your runtime module-path -->
+            <!-- 2) Copy JavaFX JARs into ../mods-mvn for runtime -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -75,9 +68,7 @@
                     <execution>
                         <id>copy-javafx</id>
                         <phase>process-resources</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
+                        <goals><goal>copy-dependencies</goal></goals>
                         <configuration>
                             <includeGroupIds>org.openjfx</includeGroupIds>
                             <outputDirectory>${modspath}</outputDirectory>

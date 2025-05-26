@@ -1,5 +1,5 @@
 module dk.sdu.cbse.collision {
-    requires dk.sdu.cbse.common;
+    requires Common;
 
     exports dk.sdu.cbse.collision;
 
