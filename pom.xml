@@ -15,22 +15,22 @@
     <module>Common</module>
     <module>Player</module>
     <module>Bullet</module>
-   <module>Enemy</module>
-
+    <module>Enemy</module>
     <module>Asteroid</module>
     <module>Collision</module>
+    <module>ScoringSystemS</module>
   </modules>
 
- <properties>
-   <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-   <maven.compiler.source>11</maven.compiler.source>
-   <maven.compiler.target>11</maven.compiler.target>
-   <javafx.version>21.0.2</javafx.version>
- </properties>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>11</maven.compiler.source>
+    <maven.compiler.target>11</maven.compiler.target>
+    <javafx.version>21.0.2</javafx.version>
+  </properties>
 
- <build>
-   <plugins>
-     <!-- Clean plugin -->
+  <build>
+    <plugins>
+      <!-- Clean plugin -->
       <plugin>
         <artifactId>maven-clean-plugin</artifactId>
         <version>3.2.0</version>

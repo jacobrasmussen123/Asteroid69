@@ -6,6 +6,7 @@ import dk.sdu.cbse.common.services.IGamePluginService;
 import dk.sdu.cbse.common.services.IPostEntityProcessingService;
 import dk.sdu.cbse.common.util.ServiceLocator;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
@@ -13,9 +14,16 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.*;
+
 
 public class Game {
 
@@ -28,10 +36,18 @@ public class Game {
     private Scene scene;
 
     private Label wallModeLabel;
+    private Label scoreLabel;
+    private Label highScoreLabel;
+    private final HttpClient http = HttpClient.newHttpClient();
+    private boolean reported = false;
+    private List<IGamePluginService> plugins;
+    private List<IEntityProcessingService> processors;
+    private List<IPostEntityProcessingService> postProcessors;
 
-    private List<IGamePluginService> plugins = new ArrayList<>();
-    private List<IEntityProcessingService> processors = new ArrayList<>();
-    private List<IPostEntityProcessingService> postProcessors = new ArrayList<>();
+    private HttpClient httpClient;
+    private Text scoreText;
+
+    private static final String SCORE_SERVICE_URL = "http://localhost:8080";
 
     public Game(
             List<IGamePluginService> plugins,
@@ -44,10 +60,15 @@ public class Game {
     }
 
     public void start(Stage primaryStage) {
+
+        httpClient = HttpClient.newHttpClient();
+        resetScore();
         gamePane = new Pane();
         gamePane.setStyle("-fx-background-color: darkblue;");
+        scoreText = new Text(10, 40, "Score: 0");
+        scoreText.setFill(Color.ORANGERED);
+        gamePane.getChildren().add(scoreText);
         scene = new Scene(gamePane, 1600, 900);
-
         setupKeyHandling();
         setupLabels();
 
@@ -56,13 +77,15 @@ public class Game {
         primaryStage.setFullScreenExitHint("");
         primaryStage.show();
 
-        loadPlugins();      // plugins start() called once here
-        loadProcessors();   // processors & postProcessors loaded once
+        // --- Load plugins & processors ---
+        loadPlugins();      // calls start() on each IGamePluginService
+        loadProcessors();   // gathers IEntityProcessingService + IPostEntityProcessingService
         resizeArena();
 
-        scene.widthProperty().addListener((obs, oldVal, newVal) -> resizeArena());
-        scene.heightProperty().addListener((obs, oldVal, newVal) -> resizeArena());
+        scene.widthProperty().addListener((o, oldV, newV) -> resizeArena());
+        scene.heightProperty().addListener((o, oldV, newV) -> resizeArena());
 
+        // --- Main loop ---
         new AnimationTimer() {
             private long last = System.nanoTime();
 
@@ -74,6 +97,7 @@ public class Game {
                 gameData.setDeltaTime(dt);
                 updateKeys();
 
+                // 1) Game logic
                 for (IEntityProcessingService s : processors) {
                     s.process(gameData, world);
                 }
@@ -81,60 +105,49 @@ public class Game {
                     s.process(gameData, world);
                 }
 
+                pollScore();
                 syncViews();
+
             }
         }.start();
     }
 
     private void setupKeyHandling() {
-        scene.setOnKeyPressed(event -> {
-            KeyCode code = event.getCode();
-            activeKeys.add(code);
-            if (code == KeyCode.F) {
-                Stage stage = (Stage) scene.getWindow();
-                stage.setFullScreen(!stage.isFullScreen());
-            } else if (code == KeyCode.TAB) {
-                WallCollisionMode current = gameData.getWallMode();
+        scene.setOnKeyPressed(e -> {
+            KeyCode c = e.getCode();
+            activeKeys.add(c);
+            if (c == KeyCode.F) {
+                Stage st = (Stage) scene.getWindow();
+                st.setFullScreen(!st.isFullScreen());
+            } else if (c == KeyCode.TAB) {
+                WallCollisionMode curr = gameData.getWallMode();
                 WallCollisionMode[] modes = WallCollisionMode.values();
-                int next = (current.ordinal() + 1) % modes.length;
-                gameData.setWallMode(modes[next]);
-                wallModeLabel.setText("Wall Mode: " + modes[next]);
+                gameData.setWallMode(modes[(curr.ordinal()+1)%modes.length]);
+                wallModeLabel.setText("Wall Mode: " + gameData.getWallMode());
             }
         });
-        scene.setOnKeyReleased(event -> activeKeys.remove(event.getCode()));
+        scene.setOnKeyReleased(e -> activeKeys.remove(e.getCode()));
     }
 
     private void updateKeys() {
-        GameKeys keys = gameData.getKeys();
-        keys.setKey(GameKeys.UP,
-                activeKeys.contains(KeyCode.UP) || activeKeys.contains(KeyCode.W)
-        );
-        keys.setKey(GameKeys.LEFT,
-                activeKeys.contains(KeyCode.LEFT) || activeKeys.contains(KeyCode.A)
-        );
-        keys.setKey(GameKeys.RIGHT,
-                activeKeys.contains(KeyCode.RIGHT) || activeKeys.contains(KeyCode.D)
-        );
-        keys.setKey(GameKeys.SPACE,
-                activeKeys.contains(KeyCode.SPACE)
-        );
-        keys.update();
+        GameKeys k = gameData.getKeys();
+        k.setKey(GameKeys.UP, activeKeys.contains(KeyCode.UP) || activeKeys.contains(KeyCode.W));
+        k.setKey(GameKeys.LEFT, activeKeys.contains(KeyCode.LEFT) || activeKeys.contains(KeyCode.A));
+        k.setKey(GameKeys.RIGHT, activeKeys.contains(KeyCode.RIGHT) || activeKeys.contains(KeyCode.D));
+        k.setKey(GameKeys.SPACE, activeKeys.contains(KeyCode.SPACE));
+        k.update();
     }
 
     private void setupLabels() {
         wallModeLabel = new Label("Wall Mode: " + gameData.getWallMode());
         wallModeLabel.setStyle("-fx-font-size:14px; -fx-text-fill:#fff; "
                 + "-fx-background-color:rgba(197,197,197,0.6);");
-        wallModeLabel.setTranslateX(10);
-        wallModeLabel.setTranslateY(10);
+        wallModeLabel.relocate(10, 70);
         gamePane.getChildren().add(wallModeLabel);
     }
 
-    /**
-     * Generic loader using ServiceLocator to pick up both on-path and /plugins JARs
-     */
-    private <T> Collection<T> locateAll(Class<T> service) {
-        return ServiceLocator.INSTANCE.locateAll(service);
+    private <T> Collection<T> locateAll(Class<T> svc) {
+        return ServiceLocator.INSTANCE.locateAll(svc);
     }
 
     private void loadPlugins() {
@@ -150,26 +163,25 @@ public class Game {
     }
 
     private void resizeArena() {
-        double width = scene.getWidth(), height = scene.getHeight();
-        gamePane.setPrefSize(width, height);
-        gameData.setDisplayWidth((int) width);
-        gameData.setDisplayHeight((int) height);
+        double w = scene.getWidth(), h = scene.getHeight();
+        gamePane.setPrefSize(w, h);
+        gameData.setDisplayWidth((int)w);
+        gameData.setDisplayHeight((int)h);
     }
 
     private void syncViews() {
-        // remove views for deleted entities
-        entityViews.entrySet().removeIf(entry -> {
-            if (world.getEntity(entry.getKey()) == null) {
-                gamePane.getChildren().remove(entry.getValue());
+        // Remove deleted
+        entityViews.entrySet().removeIf(ent -> {
+            if (world.getEntity(ent.getKey()) == null) {
+                gamePane.getChildren().remove(ent.getValue());
                 return true;
             }
             return false;
         });
-
-        // add/update views for existing entities
+        // Add/update existing
         for (Entity e : world.getEntities()) {
-            Node view = entityViews.get(e.getID());
-            if (view == null) {
+            Node v = entityViews.get(e.getID());
+            if (v == null) {
                 Polygon poly = new Polygon(e.getPolygonCoordinates());
                 poly.setRotate(e.getRotation());
                 poly.setTranslateX(e.getX());
@@ -181,10 +193,33 @@ public class Game {
                 gamePane.getChildren().add(poly);
                 entityViews.put(e.getID(), poly);
             } else {
-                view.setTranslateX(e.getX());
-                view.setTranslateY(e.getY());
-                view.setRotate(e.getRotation());
+                v.setTranslateX(e.getX());
+                v.setTranslateY(e.getY());
+                v.setRotate(e.getRotation());
             }
         }
+    }
+
+
+    private void resetScore() {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(SCORE_SERVICE_URL + "/score/set/0"))
+                .PUT(HttpRequest.BodyPublishers.noBody())
+                .build();
+        httpClient.sendAsync(req, HttpResponse.BodyHandlers.discarding())
+                .exceptionally(ex -> null);
+    }
+
+    private void pollScore() {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(SCORE_SERVICE_URL + "/score/get"))
+                .GET()
+                .build();
+        httpClient.sendAsync(req, HttpResponse.BodyHandlers.ofString())
+                .thenApply(HttpResponse::body)
+                .thenAccept(body ->
+                        Platform.runLater(() -> scoreText.setText("Score: " + body))
+                )
+                .exceptionally(ex -> null);
     }
 }

@@ -7,13 +7,17 @@ import dk.sdu.cbse.common.data.GameData;
 import dk.sdu.cbse.common.data.Health;
 import dk.sdu.cbse.common.data.World;
 import dk.sdu.cbse.common.services.IPostEntityProcessingService;
-
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
 
-public class CollisionSystem implements IPostEntityProcessingService {
 
+public class CollisionSystem implements IPostEntityProcessingService {
+    HttpClient client = HttpClient.newHttpClient();
     private final AsteroidSplitter asteroidSplitter;
 
     public CollisionSystem() {
@@ -52,30 +56,39 @@ public class CollisionSystem implements IPostEntityProcessingService {
 
         if (entity1Type.equals("Player") && entity2Type.equals("Asteroid")) {
             world.removeEntity(entity1);
+            incrementScore(666);
+
             return;
         }
         if (entity1Type.equals("Asteroid") && entity2Type.equals("Player")) {
             world.removeEntity(entity2);
+            incrementScore(666);
             return;
         }
 
         if (entity1Type.equals("Enemy") && entity2Type.equals("Asteroid")) {
             world.removeEntity(entity1);
+
             return;
         }
         if (entity1Type.equals("Asteroid") && entity2Type.equals("Enemy")) {
             world.removeEntity(entity2);
+            incrementScore(666);
             return;
         }
 
         if (entity1Type.equals("Bullet") && entity2Type.equals("Asteroid")) {
             world.removeEntity(entity1);
             splitAndRemoveAsteroid(entity2, world);
+            incrementScore(69);
+
             return;
         }
         if (entity1Type.equals("Asteroid") && entity2Type.equals("Bullet")) {
             world.removeEntity(entity2);
             splitAndRemoveAsteroid(entity1, world);
+            incrementScore(69);
+
             return;
         }
 
@@ -83,6 +96,7 @@ public class CollisionSystem implements IPostEntityProcessingService {
             if (entity1 instanceof Bullet bullet && !"Player".equals(bullet.getOwnerType())) {
                 world.removeEntity(entity1);
                 damage(entity2, world);
+                incrementScore(666);
             }
             return;
         }
@@ -90,6 +104,7 @@ public class CollisionSystem implements IPostEntityProcessingService {
             if (entity2 instanceof Bullet bullet && !"Player".equals(bullet.getOwnerType())) {
                 world.removeEntity(entity2);
                 damage(entity1, world);
+                incrementScore(69);
             }
             return;
         }
@@ -97,22 +112,27 @@ public class CollisionSystem implements IPostEntityProcessingService {
         if (entity1Type.equals("Bullet") && entity2Type.equals("Enemy")) {
             world.removeEntity(entity1);
             damage(entity2, world);
+            incrementScore(69);
+
             return;
         }
         if (entity1Type.equals("Enemy") && entity2Type.equals("Bullet")) {
             world.removeEntity(entity2);
             damage(entity1, world);
+            incrementScore(666);
             return;
         }
 
         if (entity1Type.equals("Enemy") && entity2Type.equals("Player")) {
             world.removeEntity(entity1);
             world.removeEntity(entity2);
+            incrementScore(666);
             return;
         }
         if (entity1Type.equals("Player") && entity2Type.equals("Enemy")) {
             world.removeEntity(entity1);
             world.removeEntity(entity2);
+            incrementScore(666);
         }
     }
 
@@ -136,5 +156,18 @@ public class CollisionSystem implements IPostEntityProcessingService {
                 world.removeEntity(target);
             }
         }
+    }
+    private void incrementScore(int i) {
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create("http://localhost:8080/score/add/" + i))
+                .PUT(HttpRequest.BodyPublishers.noBody())
+                .build();
+
+        client.sendAsync(req, HttpResponse.BodyHandlers.discarding())
+                .thenAccept(r -> System.out.println("score +"+i+" → "+r.statusCode()))
+                .exceptionally(ex -> {
+                    ex.printStackTrace();
+                    return null;
+                });
     }
 }

@@ -1,5 +1,6 @@
 module Collision {
     requires Common;
+    requires java.net.http;
 
     exports dk.sdu.cbse.collision;
 

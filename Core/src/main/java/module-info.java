@@ -1,10 +1,12 @@
 module Core {
     requires javafx.graphics;
-    requires javafx.controls;
     requires Common;
     requires spring.context;
     requires spring.core;
     requires spring.beans;
+    requires javafx.controls;
+    requires java.net.http;
+
 
     opens dk.sdu.cbse.core to spring.core, spring.beans,javafx.graphics,spring.context;
 

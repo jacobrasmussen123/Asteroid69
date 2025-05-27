@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
+    <excludeFromCompile>
+      <directory url="file://$PROJECT_DIR$/ScoringSystem/src/main/resources/archetype-resources" includeSubdirectories="true" />
+    </excludeFromCompile>
     <annotationProcessing>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -11,19 +14,28 @@
         <module name="Asteroid" />
         <module name="Collision" />
         <module name="Enemy" />
+        <module name="ScoringSystemS" />
         <module name="Common" />
         <module name="Core" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="CommonBullet" target="11" />
+      <module name="ScoringSystem" target="17" />
       <module name="untitled" target="23" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="Asteroid" options="" />
       <module name="Bullet" options="" />
+      <module name="Collision" options="" />
       <module name="Common" options="" />
+      <module name="Core" options="" />
+      <module name="Enemy" options="" />
+      <module name="Player" options="" />
+      <module name="ScoringSystem" options="-parameters" />
+      <module name="ScoringSystemS" options="" />
     </option>
   </component>
 </project>
