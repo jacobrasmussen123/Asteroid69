@@ -25,7 +25,6 @@ public class CollisionSystem implements IPostEntityProcessingService {
         if (found != null) {
             this.asteroidSplitter = found;
         } else {
-            // Fallback: no splitting
             this.asteroidSplitter = (original, world) -> {
             };
         }

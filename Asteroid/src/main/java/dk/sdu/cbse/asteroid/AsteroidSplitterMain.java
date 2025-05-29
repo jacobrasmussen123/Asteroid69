@@ -3,7 +3,6 @@ package dk.sdu.cbse.asteroid;
 import dk.sdu.cbse.common.asteroid.AsteroidSplitter;
 import dk.sdu.cbse.common.data.Entity;
 import dk.sdu.cbse.common.data.World;
-import dk.sdu.cbse.asteroid.Asteroid;
 
 import java.util.Random;
 
@@ -17,7 +16,6 @@ public class AsteroidSplitterMain implements AsteroidSplitter {
             return;
         }
         Asteroid parent = (Asteroid) e;
-
         double radius = parent.getRadius();
         Asteroid.Size currentSize;
         if (radius > Asteroid.Size.MEDIUM.radius) {

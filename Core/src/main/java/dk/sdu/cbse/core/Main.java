@@ -15,7 +15,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import javafx.stage.Stage;
-
 import java.util.*;
 
 public class Main extends Application {
@@ -25,12 +24,9 @@ public class Main extends Application {
     private final List<IGamePluginService> plugins = new ArrayList<>();
     private final Map<String, Node> entityViews = new HashMap<>();
     private final Set<KeyCode> activeKeys = new HashSet<>();
-
     private Pane gamePane;
     private Scene scene;
-
     private Label wallModeLabel;
-
     private final List<IEntityProcessingService> processors = new ArrayList<>();
     private final List<IPostEntityProcessingService> postProcessors = new ArrayList<>();
 
@@ -48,8 +44,8 @@ public class Main extends Application {
         primaryStage.setFullScreenExitHint("");
         primaryStage.show();
 
-        loadPlugins();      // plugins start() called once here
-        loadProcessors();   // processors & postProcessors loaded once
+        loadPlugins();
+        loadProcessors();
         resizeArena();
 
         scene.widthProperty().addListener((obs, oldVal, newVal) -> resizeArena());
@@ -122,9 +118,6 @@ public class Main extends Application {
         gamePane.getChildren().add(wallModeLabel);
     }
 
-    /**
-     * Generic loader using ServiceLocator to pick up both on-path and /plugins JARs
-     */
     private <T> Collection<T> locateAll(Class<T> service) {
         return ServiceLocator.INSTANCE.locateAll(service);
     }
@@ -149,7 +142,6 @@ public class Main extends Application {
     }
 
     private void syncViews() {
-        // remove views for deleted entities
         entityViews.entrySet().removeIf(entry -> {
             if (world.getEntity(entry.getKey()) == null) {
                 gamePane.getChildren().remove(entry.getValue());
@@ -157,8 +149,6 @@ public class Main extends Application {
             }
             return false;
         });
-
-        // add/update views for existing entities
         for (Entity e : world.getEntities()) {
             Node view = entityViews.get(e.getID());
             if (view == null) {

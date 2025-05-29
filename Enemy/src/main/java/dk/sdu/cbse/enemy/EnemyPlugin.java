@@ -21,8 +21,6 @@ public class EnemyPlugin implements IGamePluginService {
             world.addEntity(enemy);
         }
     }
-
-
     @Override
     public void stop(GameData gameData, World world) {
         List<Entity> enemies = world.getEntities(Enemy.class);

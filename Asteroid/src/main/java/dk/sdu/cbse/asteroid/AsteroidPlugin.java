@@ -15,12 +15,11 @@ public class AsteroidPlugin implements IGamePluginService {
         double height = gameData.getDisplayHeight();
 
         for (int i = 0; i < INITIAL_ASTEROID_COUNT; i++) {
-            // Choose a random size
+
             Asteroid.Size size = Asteroid.Size.values()[
                     random.nextInt(Asteroid.Size.values().length)
                     ];
 
-            // Spawn at a random edge
             double x, y;
             switch (random.nextInt(4)) {
                 case 0:

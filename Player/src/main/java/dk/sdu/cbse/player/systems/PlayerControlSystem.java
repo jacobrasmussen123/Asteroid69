@@ -7,10 +7,7 @@ import dk.sdu.cbse.common.data.GameKeys;
 import dk.sdu.cbse.common.data.World;
 import dk.sdu.cbse.common.data.WallCollisionMode;
 import dk.sdu.cbse.common.services.IEntityProcessingService;
-import dk.sdu.cbse.common.util.ServiceLocator;
 import dk.sdu.cbse.player.Player;
-
-import java.util.List;
 import java.util.ServiceLoader;
 
 public class PlayerControlSystem implements IEntityProcessingService {

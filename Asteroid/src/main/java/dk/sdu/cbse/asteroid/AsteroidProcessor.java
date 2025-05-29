@@ -11,12 +11,8 @@ public class AsteroidProcessor implements IEntityProcessingService {
     public void process(GameData gameData, World world) {
         for(Entity entity : world.getEntities(Asteroid.class)) {
             Asteroid asteroid = (Asteroid) entity;
-
-            // Update position
             asteroid.setX(asteroid.getX() + asteroid.getDx() * gameData.getDeltaTime());
             asteroid.setY(asteroid.getY() + asteroid.getDy() * gameData.getDeltaTime());
-
-            // Screen wrapping
             wrapAroundScreen(asteroid, gameData);
         }
     }

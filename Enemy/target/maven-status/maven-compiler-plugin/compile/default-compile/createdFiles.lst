@@ -1,9 +1,6 @@
 dk/sdu/cbse/enemy/EnemyController$1.class
-dk/sdu/cbse/enemy/systems/MovementSystem$1.class
 module-info.class
 dk/sdu/cbse/enemy/EnemyPlugin.class
 dk/sdu/cbse/enemy/Enemy.class
-dk/sdu/cbse/enemy/systems/MovementSystem.class
-dk/sdu/cbse/enemy/systems/AIController.class
 dk/sdu/cbse/enemy/EnemyController.class
 dk/sdu/cbse/enemy/systems/ShipDesign.class
