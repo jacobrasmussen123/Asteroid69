@@ -17,11 +17,11 @@
         <module name="ScoringSystemS" />
         <module name="Common" />
         <module name="Core" />
+        <module name="ScoringSystem" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="CommonBullet" target="11" />
-      <module name="ScoringSystem" target="17" />
       <module name="untitled" target="23" />
     </bytecodeTargetLevel>
   </component>
@@ -34,7 +34,7 @@
       <module name="Core" options="" />
       <module name="Enemy" options="" />
       <module name="Player" options="" />
-      <module name="ScoringSystem" options="-parameters" />
+      <module name="ScoringSystem" options="" />
       <module name="ScoringSystemS" options="" />
     </option>
   </component>

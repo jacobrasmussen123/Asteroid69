@@ -20,3 +20,4 @@ public interface AsteroidSplitter {
      */
     void SplitAsteroid(Entity e, World world);
 }
+

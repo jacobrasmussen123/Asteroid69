@@ -13,9 +13,10 @@ public interface BulletSPI {
      * Defines how bullets are created in the game world based on a shooter(e) entity and context.
      * Preconditions:
      * @param e  must not be null and represent a valid firing entity.
-     * @param gameData must not be null and contain current frame context (delta time, display size).
+     * @param gameData must not be null and provide the current game context (delta time, display size, input state).
      * Post conditions:
      * Returns a new Entity instance configured as a bullet and ready for addition to the world.
      */
     Entity createBullet(Entity e, GameData gameData);
 }
+

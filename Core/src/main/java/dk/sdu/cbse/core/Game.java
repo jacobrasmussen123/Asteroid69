@@ -77,10 +77,10 @@ public class Game {
         primaryStage.setFullScreenExitHint("");
         primaryStage.show();
 
-        // --- Load plugins & processors ---
-        loadPlugins();      // calls start() on each IGamePluginService
-        loadProcessors();   // gathers IEntityProcessingService + IPostEntityProcessingService
-        resizeArena();
+
+        for (IGamePluginService p : plugins) {
+            p.start(gameData, world);
+        }
 
         scene.widthProperty().addListener((o, oldV, newV) -> resizeArena());
         scene.heightProperty().addListener((o, oldV, newV) -> resizeArena());
@@ -146,21 +146,7 @@ public class Game {
         gamePane.getChildren().add(wallModeLabel);
     }
 
-    private <T> Collection<T> locateAll(Class<T> svc) {
-        return ServiceLocator.INSTANCE.locateAll(svc);
-    }
 
-    private void loadPlugins() {
-        locateAll(IGamePluginService.class).forEach(p -> {
-            plugins.add(p);
-            p.start(gameData, world);
-        });
-    }
-
-    private void loadProcessors() {
-        processors.addAll(locateAll(IEntityProcessingService.class));
-        postProcessors.addAll(locateAll(IPostEntityProcessingService.class));
-    }
 
     private void resizeArena() {
         double w = scene.getWidth(), h = scene.getHeight();

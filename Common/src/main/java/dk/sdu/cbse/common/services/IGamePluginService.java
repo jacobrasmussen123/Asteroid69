@@ -10,17 +10,13 @@ public interface IGamePluginService {
     /**
      * Handles the lifecycle of a game plugin, allowing initialization and cleanup of game features.
      * Preconditions for both operations:
-     * @param gameData must not be null and provide display and input configuration.
-     * @param world    must not be null and allow adding or removing entities and systems.
+     * @param gameData must not be null and provide the current game context (delta time, display size, input state).
+     * @param world    must not be null and represent the current game state, allowing entity management.
      * Post conditions for start:
-     * One or more entities or systems have been registered in the world.
+     * All entities or systems added by this plugin are initialized and ready for processing in the game loop.
      * Post conditions for stop:
-     * All entities and systems registered by this plugin have been removed from the world.
+     * All entities or systems added by this plugin have been removed from the world,
      */
     void start(GameData gameData, World world);
-
-
     void stop(GameData gameData, World world);
-
-
 }
