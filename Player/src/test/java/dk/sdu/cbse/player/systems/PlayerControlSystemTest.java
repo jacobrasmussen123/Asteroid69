@@ -34,33 +34,24 @@ class PlayerControlSystemTest {
 
     @Test
     void whenPressUp_thenPlayerAcceleratesForward() {
-
         gameData.setDeltaTime(1.0f);
         gameData.getKeys().setKey(GameKeys.UP, true);
 
         system.process(gameData, world);
 
-
         double expectedDx = Math.cos(Math.toRadians(0)) * Player.ACCEL * 1.0;
-        assertEquals(expectedDx, player.getDx(), 1e-6,
-                "Player should accelerate in the +X direction");
-
-        assertEquals(0.0, player.getDy(), 1e-6,
-                "Player should not accelerate in the Y direction at 0° rotation");
+        assertEquals(expectedDx, player.getDx(), 1e-6);
+        assertEquals(0.0, player.getDy(), 1e-6);
     }
 
     @Test
     void whenNoInput_thenPlayerDecelerates() {
-
         player.setDx(200);
         player.setDy(0);
         gameData.setDeltaTime(1.0f);
 
-
         system.process(gameData, world);
 
-
-        assertTrue(player.getDx() < 200,
-                "With no UP pressed, player should slow down on X axis");
+        assertTrue(player.getDx() < 200);
     }
 }
